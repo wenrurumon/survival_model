@@ -44,3 +44,34 @@ par(mfrow=c(1,3))
 plot(roc(predict(y2.lda)$class,y2))
 plot(roc(predict(y2.rpart),y2))
 plot(roc(predict(y2.logistic),y2))
+
+#############################
+# Cure those already dead
+#############################
+
+d.sel <- y$dead==1
+d.res <- as.numeric(y$time - fit)[d.sel]
+y2 <- d.cure <- ifelse(d.res>0,y$chemo[d.sel],1-y$chemo[d.sel])
+x2 <- d.x <- as.matrix(dplyr::select(dplyr::filter(y,dead==1),-time,-chemo,-dead))
+
+#LDA
+library(MASS)
+y2.lda <- lda(y2 ~ x2)
+table(predict(y2.lda)$class,y2)
+
+#TREE
+library(rpart)
+y2.rpart <- rpart(y2 ~ x2)
+table(predict(y2.rpart)>.5,y2)
+
+#Logistic
+y2.logistic <- glm(y2 ~ x2, family = binomial())
+table(predict(y2.logistic)>0,y2)
+
+#ROC
+library(pROC)
+par(mfrow=c(1,3))
+plot(roc(predict(y2.lda)$class,y2))
+plot(roc(predict(y2.rpart),y2))
+plot(roc(predict(y2.logistic),y2))
+par(mfrow=c(1,1))
