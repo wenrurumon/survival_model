@@ -37,3 +37,10 @@ table(predict(y2.rpart)>.5,y2)
 #Logistic
 y2.logistic <- glm(y2 ~ x2, family = binomial())
 table(predict(y2.logistic)>0,y2)
+
+#ROC
+library(pROC)
+par(mfrow=c(1,3))
+plot(roc(predict(y2.lda)$class,y2))
+plot(roc(predict(y2.rpart),y2))
+plot(roc(predict(y2.logistic),y2))
